@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [breeds, setBreeds] = useState<string[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchBreeds() {
@@ -20,33 +23,43 @@ export default function Navbar() {
     fetchBreeds();
   }, []);
 
-  return (
-    <nav style={{ padding: "10px", background: "#333", color: "white", textAlign: "center" }}>
-      <Link href="/" style={{ marginRight: "20px", color: "white", textDecoration: "none", fontWeight: "bold" }}>
-        Home
-      </Link>
-      <Link href="/admin" style={{ marginLeft: "20px", color: "white", textDecoration: "none", fontWeight: "bold" }}>
-        Admin
-      </Link>
+  const handleBreedSelect = (breed: string) => {
+    router.push(`/breed/${breed}`);
+    setIsOpen(false); // close dropdown
+  };
 
-      <h3 style={{ marginTop: "10px" }}>Explore Breeds</h3>
-      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px", paddingTop: "10px" }}>
-        {breeds.map((breed) => ( // ✅ Show ALL breeds now
-          <Link key={breed} href={`/breed/${breed}`} passHref>
-            <button
-              style={{
-                padding: "8px",
-                borderRadius: "5px",
-                background: "lightgray",
-                cursor: "pointer",
-                border: "none",
-                fontSize: "14px",
-              }}
-            >
-              {breed.toUpperCase()}
-            </button>
-          </Link>
-        ))}
+  return (
+    <nav className="bg-zinc-900 text-white px-6 py-4 shadow-lg flex items-center justify-between">
+      <div className="flex items-center gap-6">
+        <Link href="/" className="text-xl font-bold hover:text-yellow-300 transition duration-200">
+          🐶 Dog Center
+        </Link>
+        <Link href="/admin" className="hover:text-yellow-300 font-medium transition duration-200">
+          Admin
+        </Link>
+      </div>
+
+      <div className="relative">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="bg-white text-black px-4 py-2 rounded-md font-semibold shadow hover:bg-yellow-100 transition"
+        >
+          Explore Breeds ⬇️
+        </button>
+
+        {isOpen && (
+          <div className="absolute right-0 mt-2 w-60 max-h-80 overflow-y-auto bg-white text-black rounded-lg shadow-lg z-50">
+            {breeds.map((breed) => (
+              <button
+                key={breed}
+                onClick={() => handleBreedSelect(breed)}
+                className="block w-full text-left px-4 py-2 hover:bg-yellow-100 transition"
+              >
+                {breed.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </nav>
   );
